@@ -1,3 +1,7 @@
+import pandas as pd
+import numpy as np
+from sklearn.model_selection import train_test_split
+
 #potential missing values for:
 #	work_class
 #	occupation
@@ -85,7 +89,7 @@ native_country_enum = [
 
 def extract(ignore_missing_attribute_entries=True):
 	TESTFILE = "./data/adult.data"
-	ALL_ENTRIES = []
+	#ALL_ENTRIES = []
 	RAW_ENTRIES = []
 	CLASSES = []
 	fo = open(TESTFILE, "r", encoding="utf-8")
@@ -128,10 +132,11 @@ def extract(ignore_missing_attribute_entries=True):
 		else:
 			over50k = -1
 		entry = DataEntry(age, work_class, final_weight, education, education_num, marital_status, occupation, relationship, race, sex, capital_gain, capital_loss, hours_per_week, native_country)
-		ALL_ENTRIES.append(entry)
+		#ALL_ENTRIES.append(entry)
 		RAW_ENTRIES.append(entry.toArray())
 		CLASSES.append(over50k)
-	return ALL_ENTRIES, RAW_ENTRIES, CLASSES
+	#return ALL_ENTRIES, RAW_ENTRIES, CLASSES
+	return RAW_ENTRIES, CLASSES
 
 def findMissing(data):
 	total_missing_points = 0
@@ -149,8 +154,22 @@ def findMissing(data):
 	print("Total missing attributes: " + str(total_missing_points))
 	print("Lines with multiple missing: " + str(entries_with_multiple_missing))
 
+def split(data_array, class_array, train_fraction):
+	cols = [
+		"age", "work_class", "final_weight",
+		"education", "education_num", "marital_status",
+		"occupation", "relationship", "race", "sex",
+		"capital_gain", "capital_loss",
+		"hours_per_week", "native_country"
+	]
+
+	X = pd.DataFrame(np.array(data_array), columns=cols)
+	y = pd.DataFrame(class_array, columns=["over50k"])
+	train_data, test_data, train_classes, test_classes = train_test_split(X, y, train_size=train_fraction, shuffle=False)
+	return train_data, test_data, train_classes, test_classes
+
 def main():
-	dict_entries, array_entries, _ = extract(True)
+	array_entries, _ = extract(True)
 	findMissing(array_entries)
 
 
